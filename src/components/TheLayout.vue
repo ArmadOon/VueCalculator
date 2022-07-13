@@ -2,13 +2,17 @@
 	<div class="container">
 		<div class="calculator">
 			<div class="calculator-row">
-				<div class="display"></div>
-				<calculator-button display-value="C" />
+				<div class="display">{{ this.value }}</div>
+				<calculator-button
+					display-value="C"
+					@button-clicked="onButtonClicked"
+				/>
 			</div>
 			<calculator-row
 				v-for="(row, index) of rows"
 				:key="'row' + (index + 1)"
 				:buttons="row"
+				@button-clicked="onButtonClicked"
 			/>
 		</div>
 	</div>
@@ -16,6 +20,7 @@
 
 <script>
 import CalculatorRow from '@/components/CalculatorRow.vue';
+import CalculatorModel from '@/components/CalculatorModel';
 export default {
 	name: 'TheLayout',
 	data() {
@@ -27,7 +32,59 @@ export default {
 				['1', '2', '3', '-'],
 				['0', ',', '=', '+'],
 			],
+
+			calculator: new CalculatorModel(),
 		};
+	},
+	methods: {
+		setOperation(operation) {
+			// změníme čárky na tečky, protože funkce float pracuje s tečkami
+			this.calculator.firstNum = String(this.value).replace(',', '.');
+			// nastavíme operaci
+			this.calculator.operation = operation;
+			this.value = '0';
+		},
+		onButtonClicked(value, isOperation) {
+			if (isOperation) {
+				switch (value) {
+					case '=':
+						// změníme čárky na tečky, protože funkce float pracuje s tečkami
+						this.calculator.secondNum = String(this.value).replace(
+							',',
+							'.'
+						);
+						// vypočítáme příklad
+						this.calculator.Calculate();
+						// výsledek z kalkulačky předáme komponentě
+						this.value = this.calculator.result;
+						return;
+					// odstraníme číslo
+					case 'C':
+						this.value = '0';
+						return;
+					// nastavíme příslušnou operaci
+					case '+':
+					case '/':
+					case 'X':
+					case '-':
+						this.setOperation(value);
+						return;
+				}
+			}
+
+			// Když už je jedna desetinná čárka napsaná, tak se další nenapíše.
+			if (this.value.includes(',') && value == ',') return;
+
+			// Když je napsaná jen nula, tak se vymaže, aby se napsal stisknutý znak. Když je stisknuta desetinná čárka, tak se nula nevymaže.
+			if (
+				(this.value == '0' && value != ',') ||
+				this.calculator.isError()
+			)
+				this.value = '';
+
+			// číslo dáme do řetězce pro výsledek
+			this.value += value;
+		},
 	},
 	components: { CalculatorRow },
 };

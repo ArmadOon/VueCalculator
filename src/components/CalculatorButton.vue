@@ -2,6 +2,7 @@
 	<div
 		class="calculator-button"
 		:class="{ 'calculator-button-operator': isOperator }"
+		@click="onClick"
 	>
 		{{ displayValue }}
 	</div>
@@ -20,6 +21,11 @@ export default {
 			return (
 				this.displayValue !== ',' && isNaN(parseInt(this.displayValue))
 			);
+		},
+	},
+	methods: {
+		onClick() {
+			this.$emit('button-clicked', this.displayValue, this.isOperator);
 		},
 	},
 };
