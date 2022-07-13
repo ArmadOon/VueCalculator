@@ -1,5 +1,10 @@
 <template>
-	<div class="calculator-button">{{ displayValue }}</div>
+	<div
+		class="calculator-button"
+		:class="{ 'calculator-button-operator': isOperator }"
+	>
+		{{ displayValue }}
+	</div>
 </template>
 <script>
 export default {
@@ -8,6 +13,13 @@ export default {
 		displayValue: {
 			type: String,
 			required: true,
+		},
+	},
+	computed: {
+		isOperator() {
+			return (
+				this.displayValue !== ',' && isNaN(parseInt(this.displayValue))
+			);
 		},
 	},
 };
@@ -26,11 +38,20 @@ export default {
 	cursor: pointer;
 	transition: all 0.3s ease-in-out;
 }
+.calculator-button:not(.calculator-button-operator) {
+	background: transparent;
+}
+.calculator-button:not(.calculator-button-operator):hover {
+	background: #f2edcf;
+}
 .calculator-button:active {
 	transform: scale(0.85);
 	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.15);
 }
-.calculator-button:hover {
-	background: #f2edcf;
+.calculator-button-operator {
+	background: #fee8d7;
+}
+.calculator-button-operator:hover {
+	background: #fdddc3;
 }
 </style>
